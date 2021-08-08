@@ -1,12 +1,21 @@
-def table_extract(html_remove_blank: str):
-    tr_start_index = 4
-    tr_stop_index = -5
+def table_extract(html: str) -> dict[bool:dict[str:list]]:
+    status = True
+    extract = dict()
+    error = dict()
+
+    html_remove_blank = html.replace("\n", "").replace("\r", "").replace(" ", "").replace("   ", "")
     tr_start_str = "<tr>"
     tr_stop_str = "</tr>"
-    th_start_index = 4
-    th_stop_index = -5
+    tr_start_index = len(tr_start_str)
+    tr_stop_index = -len(tr_stop_str)
     th_start_str = "<th>"
     th_stop_str = "</th>"
+    th_start_index = len(th_start_str)
+    th_stop_index = -len(th_stop_str)
+    td_start_str = "<td>"
+    td_stop_str = "</td>"
+    td_start_index = len(td_start_str)
+    td_stop_index = -len(td_stop_str)
 
     # remove table markup
     table_start_str = "<table>"
@@ -27,8 +36,8 @@ def table_extract(html_remove_blank: str):
             thead_stop_str = "</thead>"
             thead_start_index = len(thead_start_str)
             thead_stop_index = -len(thead_stop_str)
-            if i[:thead_start_index] == thead_start_str and thead_stop_str in i[thead_start_index:]:
-                thead = i[thead_start_index:].split(thead_stop_str)[0]
+            if thead_start_str in i and thead_stop_str in i.split(thead_start_str)[1]:
+                thead = i.split(thead_start_str)[1].split(thead_stop_str)[0]
                 # print(thead)
 
                 # remove tr markup
@@ -36,24 +45,29 @@ def table_extract(html_remove_blank: str):
                 if thead[:tr_start_index] == tr_start_str and thead[tr_stop_index:] == tr_stop_str:
                     thead_remove_tr = thead[tr_start_index:tr_stop_index]
                     # print(thead_remove_tr)
-
-                # remove th markup
-                thead_remove_tr_th = thead_remove_tr
-                if thead_remove_tr[:th_start_index] == th_start_str and thead_remove_tr[th_stop_index:] == th_stop_str:
-                    thead_remove_tr_th = thead_remove_tr[th_start_index:th_stop_index]
-                    # print(thead_remove_tr_th)
-                # print(thead_remove_tr_th)
-                thead_list = thead_remove_tr_th.split("</th><th>")
-                print(thead_list)
+                    tr_split = "</tr><tr>"
+                    tr_list = thead_remove_tr.split(tr_split)
+                    thead_list = list()
+                    for j in tr_list:
+                        # remove th markup
+                        thead_remove_tr_th = j
+                        if j[:th_start_index] == th_start_str and j[th_stop_index:] == th_stop_str:
+                            thead_remove_tr_th = j[th_start_index:th_stop_index]
+                            # print(thead_remove_tr_th)
+                        # print(thead_remove_tr_th)
+                        th_list = thead_remove_tr_th.split("</th><th>")
+                        # print(th_list)
+                        thead_list.append(th_list)
+                    # print(thead_list)
+                    extract["thead"] = thead_list
 
             # remove tbody markup
-            tbody_start_index = 7
-            tbody_stop_index = -8
             tbody_start_str = "<tbody>"
             tbody_stop_str = "</tbody>"
-            if i[:tbody_start_index] == tbody_start_str and tbody_stop_str in i[
-                                                                              tbody_start_index:]:
-                tbody = i[tbody_start_index:].split(tbody_stop_str)[0]
+            tbody_start_index = len(tbody_start_str)
+            tbody_stop_index = -len(tbody_stop_str)
+            if tbody_start_str in i and tbody_stop_str in i.split(tbody_start_str)[1]:
+                tbody = i.split(tbody_start_str)[1].split(tbody_stop_str)[0]
                 # print(tbody)
 
                 # remove tr markup
@@ -61,17 +75,31 @@ def table_extract(html_remove_blank: str):
                 if tbody[:tr_start_index] == tr_start_str and tbody[tr_stop_index:] == tr_stop_str:
                     tbody_remove_tr = tbody[tr_start_index:tr_stop_index]
                     # print(tbody_remove_tr)
-
-                # remove th markup
-                tbody_remove_tr_th = tbody_remove_tr
-                if tbody_remove_tr[:th_start_index] == th_start_str and tbody_remove_tr[th_stop_index:] == th_stop_str:
-                    tbody_remove_tr_th = tbody_remove_tr[th_start_index:th_stop_index]
-                    # print(tbody_remove_tr_th)
-                print(tbody_remove_tr_th)
-                tbody_list = tbody_remove_tr_th.split("</th><th>")
-                print(tbody_list)
+                    tr_split = "</tr><tr>"
+                    tr_list = tbody_remove_tr.split(tr_split)
+                    tbody_list = list()
+                    for j in tr_list:
+                        # remove td markup
+                        tbody_remove_tr_td = j
+                        if j[:td_start_index] == td_start_str and j[td_stop_index:] == td_stop_str:
+                            tbody_remove_tr_td = j[td_start_index:td_stop_index]
+                            # print(tbody_remove_tr_td)
+                        # print(tbody_remove_tr_td)
+                        td_list = tbody_remove_tr_td.split("</td><td>")
+                        # print(td_list)
+                        tbody_list.append(td_list)
+                    # print(tbody_list)
+                    extract["tbody"] = tbody_list
     else:
-        print("Incorrect table format")
+        status = False
+        error_table_format = "Incorrect table format"
+        # print(error_table_format)
+        error["0"] = error_table_format
+
+    if status:
+        return {status: extract}
+    else:
+        return {status: error}
 
 
 if __name__ == "__main__":
@@ -139,5 +167,8 @@ if __name__ == "__main__":
     </tbody>
     </table>
     """
-    html_remove_blank = html.replace("\n", "").replace("\r", "").replace(" ", "").replace("   ", "")
-    table_extract(html_remove_blank)
+    result: dict = table_extract(html)
+    # print(result)
+    for i, j in result.items():
+        for k, l in j.items():
+            print(k, l)
