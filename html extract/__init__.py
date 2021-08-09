@@ -1,9 +1,45 @@
+def replace_str(original: str) -> str:
+    replace_list = list()
+    replace_list.append("<em>")
+    replace_list.append("</em>")
+    for i in replace_list:
+        original = original.replace(i, "")
+
+    return original
+
+
+def list_remove_blank(original: list) -> list:
+    blank_list = list()
+    blank_list.append("")
+    index_list = list()
+    for i in blank_list:
+        for j in range(len(original)):
+            if original[j] == i:
+                index_list.append(j)
+    index_list = index_list[::-1]
+    for index in index_list:
+        original.pop(index)
+    return original
+
+
+def str_remove_blank(original: str) -> str:
+    blank_list = list()
+    blank_list.append("\n")
+    blank_list.append("\r")
+    blank_list.append(" ")
+    blank_list.append("   ")
+    for i in blank_list:
+        original = original.replace(i, "")
+    return original
+
+
 def table_extract(html: str) -> dict[bool:dict[str:list]]:
     status = True
     extract = dict()
     error = dict()
 
-    html_remove_blank = html.replace("\n", "").replace("\r", "").replace(" ", "").replace("   ", "")
+    html_remove_blank = str_remove_blank(html)
+    html_remove_blank = replace_str(html_remove_blank)
     tr_start_str = "<tr>"
     tr_stop_str = "</tr>"
     tr_start_index = len(tr_start_str)
@@ -56,6 +92,7 @@ def table_extract(html: str) -> dict[bool:dict[str:list]]:
                             # print(thead_remove_tr_th)
                         # print(thead_remove_tr_th)
                         th_list = thead_remove_tr_th.split("</th><th>")
+                        # th_list = list_remove_blank(th_list)
                         # print(th_list)
                         thead_list.append(th_list)
                     # print(thead_list)
@@ -86,6 +123,7 @@ def table_extract(html: str) -> dict[bool:dict[str:list]]:
                             # print(tbody_remove_tr_td)
                         # print(tbody_remove_tr_td)
                         td_list = tbody_remove_tr_td.split("</td><td>")
+                        # th_list = list_remove_blank(td_list)
                         # print(td_list)
                         tbody_list.append(td_list)
                     # print(tbody_list)
@@ -168,7 +206,7 @@ if __name__ == "__main__":
     </table>
     """
     result: dict = table_extract(html)
-    # print(result)
+    print(result)
     for i, j in result.items():
         for k, l in j.items():
             print(k, l)
