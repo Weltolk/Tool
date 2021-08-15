@@ -207,6 +207,7 @@ if __name__ == "__main__":
     """
     result: dict = table_extract(html)
     print(result)
+    print("\n")
     for i, j in result.items():
         for k, l in j.items():
             print(k, l)

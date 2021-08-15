@@ -27,6 +27,7 @@ def generate_table(original_list: list[dict[str:list]]) -> dict[bool:list[str]]:
                     markdown += "|"
                     markdown += "\n"
                 markdown = markdown[:-1]
+                # print(markdown)
                 markdown_dict[status] = markdown
             else:
                 status = False
@@ -51,3 +52,7 @@ if __name__ == "__main__":
                                ['restrict', 'inline', '_Bool', '_Complex', '_Imaginary']]})
     result: dict[bool:str] = generate_table(original)
     print(result)
+    print("\n")
+    for status, markdown in result.items():
+        print(status)
+        print(markdown)
